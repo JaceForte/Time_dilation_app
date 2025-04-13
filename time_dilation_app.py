@@ -76,7 +76,14 @@ if input_method == "Paste Text":
     transcript = st.text_area("Paste transcript text here:", height=300)
 else:
     uploaded_file = st.file_uploader("Upload a .txt file with transcript text:")
-    transcript = uploaded_file.read().decode("utf-8") if uploaded_file else ""
+    if uploaded_file:
+    try:
+        transcript = uploaded_file.read().decode("utf-8")
+    except UnicodeDecodeError:
+        uploaded_file.seek(0)  # Reset file pointer
+        transcript = uploaded_file.read().decode("latin-1")
+else:
+    transcript = ""
 
 if transcript:
     st.write("\n## Detected Time-Based Statements")
