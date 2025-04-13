@@ -77,7 +77,7 @@ if input_method == "Paste Text":
 else:
     uploaded_file = st.file_uploader("Upload a .txt file with transcript text:")
     if uploaded_file:
-    try:
+        try:
         transcript = uploaded_file.read().decode("utf-8")
     except UnicodeDecodeError:
         uploaded_file.seek(0)  # Reset file pointer
