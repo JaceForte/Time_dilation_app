@@ -71,20 +71,20 @@ Upload an earnings call transcript or paste it below. This tool identifies state
 """)
 
 input_method = st.radio("Choose input method:", ["Paste Text", "Upload File"])
+transcript = ""
+uploaded_file = None  # Initialize to avoid NameError
 
 if input_method == "Paste Text":
     transcript = st.text_area("Paste transcript text here:", height=300)
-else:
-    uploaded_file = st.file_uploader("Upload a .txt file with transcript text:")
 
-if uploaded_file:
-    try:
-        transcript = uploaded_file.read().decode("utf-8")
-    except UnicodeDecodeError:
-        uploaded_file.seek(0)  # Reset file pointer
-        transcript = uploaded_file.read().decode("latin-1")
-else:
-    transcript = ""
+elif input_method == "Upload File":
+    uploaded_file = st.file_uploader("Upload a .txt file with transcript text:")
+    if uploaded_file is not None:
+        try:
+            transcript = uploaded_file.read().decode("utf-8")
+        except UnicodeDecodeError:
+            uploaded_file.seek(0)  # Reset file pointer
+            transcript = uploaded_file.read().decode("latin-1")
 
 if transcript:
     st.write("\n## Detected Time-Based Statements")
