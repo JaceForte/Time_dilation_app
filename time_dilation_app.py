@@ -80,12 +80,13 @@ You are analyzing an earnings call transcript. Extract all statements that refer
 Transcript:
 {transcript_chunk[:5000]}
 """
-    response = openai.ChatCompletion.create(
+    client = openai.OpenAI()
+    response = client.chat.completions.create(
         model="gpt-4",
         messages=[{"role": "user", "content": prompt}],
         temperature=0.2,
     )
-    return response["choices"][0]["message"]["content"]
+    return response.choices[0].message.content
 
 def parse_gpt_markdown_table(md: str) -> pd.DataFrame:
     lines = [line.strip() for line in md.splitlines() if '|' in line and not line.startswith('|---')]
