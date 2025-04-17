@@ -2,13 +2,9 @@ import streamlit as st
 import re
 import pandas as pd
 import matplotlib.pyplot as plt
-import openai
+from openai import OpenAI
 import io
 from typing import List, Tuple
-
-# --- Setup OpenAI API Key ---
-from openai import OpenAI
-
 
 # --- Regex Patterns ---
 TIME_PHRASES = [
@@ -72,11 +68,9 @@ def extract_time_signals(text: str) -> List[Tuple[str, str, str]]:
             results.append((phrase, sentiment, quote))
     return results
 
-from openai import OpenAI  # Make sure this is still near the top
-
 @st.cache_data
 def call_gpt_api(transcript_chunk: str) -> str:
-    client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])  # ← Move client here
+    client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
     prompt = f"""
 You are analyzing an earnings call transcript. Extract all statements that refer to changes in timing (delays, accelerations, rescheduling, unexpected completions, etc). Return a markdown table with:
