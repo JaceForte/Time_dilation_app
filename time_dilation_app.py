@@ -2,7 +2,6 @@ import streamlit as st
 import re
 import pandas as pd
 import matplotlib.pyplot as plt
-from openai import OpenAI
 import io
 from typing import List, Tuple
 import openai
