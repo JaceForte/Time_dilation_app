@@ -7,7 +7,10 @@ import io
 from typing import List, Tuple
 
 # --- Setup OpenAI API Key ---
-openai.api_key = st.secrets["OPENAI_API_KEY"]
+from openai import OpenAI
+
+client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+
 
 # --- Regex Patterns ---
 TIME_PHRASES = [
@@ -71,6 +74,8 @@ def extract_time_signals(text: str) -> List[Tuple[str, str, str]]:
             results.append((phrase, sentiment, quote))
     return results
 
+from openai import OpenAI  # move this to your imports
+
 @st.cache_data
 def call_gpt_api(transcript_chunk: str) -> str:
     prompt = f"""
@@ -80,7 +85,7 @@ You are analyzing an earnings call transcript. Extract all statements that refer
 Transcript:
 {transcript_chunk[:5000]}
 """
-    client = openai.OpenAI()
+    client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
     response = client.chat.completions.create(
         model="gpt-4",
         messages=[{"role": "user", "content": prompt}],
