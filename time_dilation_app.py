@@ -5,6 +5,9 @@ import matplotlib.pyplot as plt
 from openai import OpenAI
 import io
 from typing import List, Tuple
+import openai
+
+openai.api_key = st.secrets["OPENAI_API_KEY"]
 
 # --- Regex Patterns ---
 TIME_PHRASES = [
@@ -70,8 +73,6 @@ def extract_time_signals(text: str) -> List[Tuple[str, str, str]]:
 
 @st.cache_data
 def call_gpt_api(transcript_chunk: str) -> str:
-    client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
-
     prompt = f"""
 You are analyzing an earnings call transcript. Extract all statements that refer to changes in timing (delays, accelerations, rescheduling, unexpected completions, etc). Return a markdown table with:
 | Timeline Signal | Sentiment | Quote |
@@ -79,13 +80,13 @@ You are analyzing an earnings call transcript. Extract all statements that refer
 Transcript:
 {transcript_chunk[:5000]}
 """
-    response = client.chat.completions.create(
+    response = openai.ChatCompletion.create(
         model="gpt-4",
         messages=[{"role": "user", "content": prompt}],
         temperature=0.2,
     )
-    return response.choices[0].message.content
-
+    return response["choices"][0]["message"]["content"]
+    
 def parse_gpt_markdown_table(md: str) -> pd.DataFrame:
     lines = [line.strip() for line in md.splitlines() if '|' in line and not line.startswith('|---')]
     rows = [line.split('|')[1:-1] for line in lines if len(line.split('|')) >= 4]
