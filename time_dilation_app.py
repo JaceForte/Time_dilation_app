@@ -15,18 +15,19 @@ TIME_PHRASES = [
     r"faster than expected",
     r"in the next quarter",
     r"in the coming months",
-    r"pushed back",
-    r"moved up",
-    r"rescheduled",
+    r"pushed (back|forward)",
+    r"moved (up|back)",
+    r"reschedul(ed|ing)",
     r"timeline",
     r"timetable",
-    r"expected to be completed",
-    r"by year-end",
-    r"next year",
-    r"this quarter",
-    r"mid-year",
-    r"longer than expected",
-    r"sooner than expected"
+    r"expected to (complete|launch|begin|wrap up|ship)",
+    r"by (mid|end|early)-?(Q[1-4]|year|month)",
+    r"(next|this) (quarter|year|month)",
+    r"mid-(year|quarter)",
+    r"(longer|sooner|earlier|later) than (expected|planned|anticipated)",
+    r"(completed|delivered) (earlier|later) than expected",
+    r"as (scheduled|planned)",
+    r"(project|launch|rollout|deployment).*?delayed"
 ]
 
 SENTIMENT_MAP = {
