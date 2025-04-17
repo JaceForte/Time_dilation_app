@@ -90,7 +90,7 @@ Transcript:
 def parse_gpt_markdown_table(md: str) -> pd.DataFrame:
     lines = [line.strip() for line in md.splitlines() if '|' in line and not line.startswith('|---')]
     rows = [line.split('|')[1:-1] for line in lines if len(line.split('|')) >= 4]
-    clean_rows = [tuple(cell.strip()) for cell in row] for row in rows
+    clean_rows = [tuple(cell.strip() for cell in row) for row in rows]
     return pd.DataFrame(clean_rows, columns=["Timeline Signal", "Sentiment", "Quote"])
 
 def chunk_text(text: str, max_length: int = 4000) -> List[str]:
