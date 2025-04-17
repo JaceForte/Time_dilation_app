@@ -2,8 +2,13 @@ import streamlit as st
 import re
 import pandas as pd
 from typing import List, Tuple
+import openai
+import io
 
-# --- Helper Functions ---
+# --- Setup your OpenAI key ---
+openai.api_key = st.secrets["OPENAI_API_KEY"] if "OPENAI_API_KEY" in st.secrets else "your-api-key-here"
+
+# --- Helper Regex Patterns ---
 TIME_PHRASES = [
     r"ahead of schedule",
     r"behind schedule",
@@ -65,6 +70,22 @@ def extract_time_signals(text: str) -> List[Tuple[str, str, str]]:
             results.append((phrase, sentiment, quote))
     return results
 
+def get_time_shift_signals_with_gpt(text: str) -> str:
+    prompt = f"""You are analyzing an earnings call transcript. Extract all sentences that mention changes in project timing (delays, speedups, schedule shifts). Return a markdown table with:
+
+| Timeline Signal | Sentiment | Quote |
+
+Here is the transcript:
+{text[:5000]}"""
+
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.2,
+    )
+
+    return response["choices"][0]["message"]["content"]
+
 # --- Streamlit App ---
 st.title("⏳ Time Dilation Event Tracker")
 st.markdown("""
@@ -73,7 +94,7 @@ Upload an earnings call transcript or paste it below. This tool identifies state
 
 input_method = st.radio("Choose input method:", ["Paste Text", "Upload File"])
 transcript = ""
-uploaded_file = None  # Initialize to avoid NameError
+uploaded_file = None
 
 if input_method == "Paste Text":
     transcript = st.text_area("Paste transcript text here:", height=300)
@@ -84,17 +105,23 @@ elif input_method == "Upload File":
         try:
             transcript = uploaded_file.read().decode("utf-8")
         except UnicodeDecodeError:
-            uploaded_file.seek(0)  # Reset file pointer
+            uploaded_file.seek(0)
             transcript = uploaded_file.read().decode("latin-1")
 
 if transcript:
-    st.write("\n## Detected Time-Based Statements")
+    st.write("\n## Detected Time-Based Statements (Regex Match)")
     results = extract_time_signals(transcript)
 
     if results:
         df = pd.DataFrame(results, columns=["Time Phrase", "Sentiment", "Context"])
         st.dataframe(df, use_container_width=True)
         csv = df.to_csv(index=False).encode('utf-8')
-        st.download_button("Download CSV", csv, "time_dilation_events.csv", "text/csv")
+        st.download_button("Download Regex Results CSV", csv, "time_dilation_events.csv", "text/csv")
     else:
-        st.info("No time-based phrases detected.")
+        st.info("No time-based phrases detected by regex.")
+
+    if st.button("🧠 Use GPT to Extract Time Signals"):
+        with st.spinner("Querying GPT-4..."):
+            gpt_output = get_time_shift_signals_with_gpt(transcript)
+            st.markdown("### GPT-Generated Table")
+            st.markdown(gpt_output)
