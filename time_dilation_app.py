@@ -4,6 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import openai
 import io
+import time
 from typing import List, Tuple
 
 openai.api_key = st.secrets["OPENAI_API_KEY"]
@@ -153,16 +154,16 @@ if transcript:
         st.subheader("GPT Results")
         chunks = chunk_text(transcript)
         all_tables = []
+
         for i, chunk in enumerate(chunks):
-    st.text(f"Processing chunk {i+1}/{len(chunks)}...")
-    try:
-        import time
-        time.sleep(20)  # ⏳ waits to stay within rate limit
-        md_table = call_gpt_api(chunk)
-        df_chunk = parse_gpt_markdown_table(md_table)
-        all_tables.append(df_chunk)
-    except Exception as e:
-        st.warning(f"Failed to parse GPT output for chunk {i+1}: {e}")
+            st.text(f"Processing chunk {i+1}/{len(chunks)}...")
+            try:
+                time.sleep(20)  # Respect OpenAI rate limits (3 RPM)
+                md_table = call_gpt_api(chunk)
+                df_chunk = parse_gpt_markdown_table(md_table)
+                all_tables.append(df_chunk)
+            except Exception as e:
+                st.warning(f"Failed to parse GPT output for chunk {i+1}: {e}")
 
         if all_tables:
             full_gpt_df = pd.concat(all_tables, ignore_index=True)
