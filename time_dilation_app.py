@@ -155,7 +155,9 @@ if transcript:
         all_tables = []
         for i, chunk in enumerate(chunks):
             st.text(f"Processing chunk {i+1}/{len(chunks)}...")
-            md_table = call_gpt_api(chunk)
+            import time
+time.sleep(20)  # ⏳ waits to stay within rate limit
+md_table = call_gpt_api(chunk)
             try:
                 df_chunk = parse_gpt_markdown_table(md_table)
                 all_tables.append(df_chunk)
