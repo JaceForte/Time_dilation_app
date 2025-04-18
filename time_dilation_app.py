@@ -2,9 +2,9 @@ import streamlit as st
 import re
 import pandas as pd
 import matplotlib.pyplot as plt
+import openai
 import io
 from typing import List, Tuple
-import openai
 
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
@@ -80,12 +80,12 @@ Transcript:
 {transcript_chunk[:5000]}
 """
     response = openai.ChatCompletion.create(
-        model="gpt-4",
+        model="gpt-3.5-turbo",
         messages=[{"role": "user", "content": prompt}],
         temperature=0.2,
     )
     return response["choices"][0]["message"]["content"]
-    
+
 def parse_gpt_markdown_table(md: str) -> pd.DataFrame:
     lines = [line.strip() for line in md.splitlines() if '|' in line and not line.startswith('|---')]
     rows = [line.split('|')[1:-1] for line in lines if len(line.split('|')) >= 4]
